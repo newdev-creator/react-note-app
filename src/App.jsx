@@ -4,6 +4,7 @@ import { getNotesFromAPI } from "./features/notes";
 import NotesList from "./components/NotesList";
 import Sidebar from "./components/Sidebar";
 import SideNotes from "./components/SideNotes";
+import DisplayNote from "./components/DisplayNote";
 
 function App() {
   const dispatch = useDispatch();
@@ -21,6 +22,7 @@ function App() {
         <SideNotes />
         <Routes>
           <Route path="/" element={<NotesList />} />
+          <Route path="/note/:id" element={<DisplayNote />} />
         </Routes>
       </BrowserRouter>
     </div>
