@@ -1,11 +1,14 @@
 import React from "react";
 import { nanoid } from "nanoid";
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { addNoteFromUser } from "../features/notes";
+import { addNoteFromUser, editNote } from "../features/notes";
 
 export default function Edit() {
   const dispatch = useDispatch();
+  const notes = useSelector((state) => state.notes);
+  const { id } = useParams();
   const [inputsStates, setInputsStates] = useState({
     title: "",
     subtitle: "",
@@ -27,12 +30,16 @@ export default function Edit() {
         bodyText: false,
       });
 
-      dispatch(addNoteFromUser({ ...inputsStates, id: nanoid(8) }));
-      setInputsStates({
-        title: "",
-        subtitle: "",
-        bodyText: "",
-      });
+      if (id && notes.list) {
+        dispatch(editNote({ ...inputsStates, id }));
+      } else {
+        dispatch(addNoteFromUser({ ...inputsStates, id: nanoid(8) }));
+        setInputsStates({
+          title: "",
+          subtitle: "",
+          bodyText: "",
+        });
+      }
     } else {
       for (const [key, value] of Object.entries(inputsStates)) {
         if (value.length === 0) {
@@ -43,6 +50,22 @@ export default function Edit() {
       }
     }
   }
+
+  useEffect(() => {
+    if (id && notes.list) {
+      setInputsStates({
+        title: notes.list.find((note) => note.id === id).title,
+        subtitle: notes.list.find((note) => note.id === id).subtitle,
+        bodyText: notes.list.find((note) => note.id === id).bodyText,
+      });
+    } else {
+      setInputsStates({
+        title: "",
+        subtitle: "",
+        bodyText: "",
+      });
+    }
+  }, [id]);
 
   return (
     <div className="w-full p-10">
@@ -88,7 +111,7 @@ export default function Edit() {
         <label className="mb-2 mt-4 block text-slate-100" htmlFor="bodyText">
           Contenue de la note
         </label>
-        <textArea
+        <textarea
           onChange={(e) =>
             setInputsStates({ ...inputsStates, bodyText: e.target.value })
           }
@@ -96,7 +119,7 @@ export default function Edit() {
           value={inputsStates.bodyText}
           id="bodyText"
           spellCheck="false"
-        ></textArea>
+        ></textarea>
         {showValidation.bodyText && (
           <p className="text-red-400 mb-2">Veuillez écrire du contenue.</p>
         )}
